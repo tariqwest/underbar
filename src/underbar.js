@@ -207,55 +207,20 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
-    var altAccumulator;
+    var altAccumulator=0;
 
-    if(accumulator === null || accumulator === undefined){
-        altAccumulator = collection[0];
+    if(arguments.length === 2){
+      altAccumulator = collection[0];
       for(var i=1; i<collection.length; i++){
-        iterator(altAccumulator, collection[i]);
+        altAccumulator = iterator(altAccumulator, collection[i]);
       }
       return altAccumulator;
     }else{
       for(var i=0; i<collection.length; i++){
-        iterator(accumulator, collection[i]);
+        accumulator = iterator(accumulator, collection[i]);
       }
       return accumulator;
     }
-
-    
-    /*
-    if(Array.isArray(collection)){
-      if(accumulator === null || accumulator === undefined){
-        altAccumulator = collection[0];
-        for(var i=1; i<collection.length; i++){
-          iterator(altAccumulator, collection[i]);
-        }
-        return altAccumulator;
-      }else{
-        for(var i=0; i<collection.length; i++){
-          iterator(accumulator, collection[i]);
-        }
-        return accumulator;
-      }
-    }else{
-      if(accumulator === null || accumulator === undefined){
-        for(var key in collection){
-          altAccumulator = collection[key];
-          delete collection[key];
-          break;
-        }
-        for(var key in collection){
-          iterator(altAccumulator, collection[key]);
-        }
-        return altAccumulator;
-      }else{
-        for(var key in collection){
-          iterator(accumulator, collection[i]);
-        }
-        return accumulator;
-      }
-    }
-    */
   };
 
   // Determine if the array or object contains a given value (using `===`).
