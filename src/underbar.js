@@ -268,18 +268,79 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
-    _.reduce(collection, function(isTrue, item){
-      if(isTrue){
+    
+
+    if((arguments.length === 2)){ // Do this if a callback function supplied
+      if(arguments[1].name === ''){ // Ignore function if it is _.identity    
+        //console.log('Function name: ' + arguments[1].name);
+
+        for (var i = 0; i<collection.length; i++) {
+          if (!collection[i]){ 
+            return false;
+          }
+        }
+        return true;
+
+        /*
+        _.each(collection, function(){
+          if (!collection[i]){ 
+            return false;
+          }
+        });
+        return true;
+        */
+
+      }else{ // Apply the callback function
+        //console.log('Function name: ' + arguments[1].name);
+        for (var i = 0; i<collection.length; i++) {
+          if (!iterator(collection[i])){
+            return false;
+          }
+        }
         return true;
       }
-      return item === false;
-    }, false);
+    }else{ // Do this default function if no callback supplied
+      //console.log('No Callback!');
+        for (var i = 0; i<collection.length; i++) {
+          if (!collection[i]){ 
+            return false;
+          }
+        }
+        return true;
+    }
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
+    var any = false;
     // TIP: There's a very clever way to re-use every() here.
+    if((arguments.length === 2)){ // Do this if a callback function supplied
+      if(arguments[1].name === ''){ // Ignore function if it is _.identity    
+        for (var i = 0; i<collection.length; i++) {
+          if (collection[i]){ 
+            return true;
+          }
+        }
+        return false;
+
+      }else{ // Apply the callback function
+        for (var i = 0; i<collection.length; i++) {
+          if (iterator(collection[i])){
+            return true;
+          }
+        }
+        return false;
+      }
+    }else{ // Do this default function if no callback supplied
+        for (var i = 0; i<collection.length; i++) {
+          if (collection[i]){ 
+            return true;
+          }
+        }
+        return false;
+    }
+
   };
 
 
