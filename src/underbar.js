@@ -104,7 +104,9 @@
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+
     var rejected = [];
+    
     if(Array.isArray(collection)){
       for(var i=0; i<collection.length; i++){
         if(!test(collection[i])){
@@ -118,6 +120,7 @@
         }
       }
     }
+    
     return rejected;
   };
 
@@ -156,6 +159,14 @@
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
     var results = [];
+    
+    /*
+    _.each(collection, function(item){
+        results.push(iterator(collection[item-1], item-1, collection));
+    });
+    */
+    
+
     if(Array.isArray(collection)){
       for(var i=0; i<collection.length; i++){
         results.push(iterator(collection[i], i, collection));
@@ -165,6 +176,7 @@
         results.push(iterator(collection[key], key, collection));
       }
     }
+    
     return results;
   };
 
@@ -208,7 +220,22 @@
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
     var altAccumulator=0;
+      
+    if(arguments.length === 2){
+      var altAccumulator = collection[0];
+      var altCollection = collection.slice(1);
+      _.each(altCollection, function(item){
+        altAccumulator = iterator(altAccumulator, item);
+      });
+      return altAccumulator;
+    }else{
+      _.each(collection, function(item){
+        accumulator = iterator(accumulator, item);
+      });
+      return accumulator;
+    }
 
+    /*
     if(arguments.length === 2){
       altAccumulator = collection[0];
       for(var i=1; i<collection.length; i++){
@@ -221,6 +248,8 @@
       }
       return accumulator;
     }
+    */
+
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -239,6 +268,12 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    _.reduce(collection, function(isTrue, item){
+      if(isTrue){
+        return true;
+      }
+      return item === false;
+    }, false);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
@@ -267,11 +302,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    for(var i=0; i<arguments.length; i++){
+      for(var key in arguments[i]){
+        obj[key] = arguments[i][key];
+      }
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for(var i=0; i<arguments.length; i++){
+      for(var key in arguments[i]){
+        if(!obj.hasOwnProperty(key)){
+          obj[key] = arguments[i][key];
+        }
+      }
+    }
+    return obj;
   };
 
 
@@ -315,6 +364,20 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+
+    var alreadyComputed = {};
+
+    return function() {
+      var args = JSON.stringify(arguments)
+      if(alreadyComputed.hasOwnProperty(args)){
+        return alreadyComputed[args];
+      }else{
+        var computed = func.apply(this, arguments);
+        alreadyComputed[args] = computed;
+        return computed;
+      }
+    };
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -324,6 +387,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = arguments;
+    var functionWithContext = function(){
+      return func(args[2], args[3]);
+    };
+    setTimeout(functionWithContext, wait);
   };
 
 
@@ -337,7 +405,26 @@
   // TIP: This function's test suite will ask that you not modify the original
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
+
   _.shuffle = function(array) {
+
+    var working = array.slice();
+    var final = [];
+    
+    var getRandomInt = function(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    while(working.length > 0){
+      var random = getRandomInt(0, working.length);
+      final.push(working[random]);
+      working.splice(random, 1);
+    }
+
+    return final;
+
   };
 
 
