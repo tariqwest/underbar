@@ -84,6 +84,7 @@
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
     var filtered = [];
+    /*
     if(Array.isArray(collection)){
       for(var i=0; i<collection.length; i++){
         if(test(collection[i])){
@@ -97,6 +98,14 @@
         }
       }
     }
+  */
+
+  _.each(collection, function(item){
+    if(test(item)){
+      filtered.push(item);
+    }
+  });
+
     return filtered;
   };
 
@@ -107,6 +116,7 @@
 
     var rejected = [];
     
+    /*
     if(Array.isArray(collection)){
       for(var i=0; i<collection.length; i++){
         if(!test(collection[i])){
@@ -119,7 +129,13 @@
           rejected.push(collection[key]);
         }
       }
-    }
+    }*/
+
+    _.filter(collection, function(item){
+      if(!test(item)){
+        rejected.push(item);
+      }
+    });
     
     return rejected;
   };
@@ -160,13 +176,11 @@
     // the members, it also maintains an array of results.
     var results = [];
     
-    /*
     _.each(collection, function(item){
-        results.push(iterator(collection[item-1], item-1, collection));
+        results.push(iterator(item));
     });
-    */
     
-
+    /*
     if(Array.isArray(collection)){
       for(var i=0; i<collection.length; i++){
         results.push(iterator(collection[i], i, collection));
@@ -175,7 +189,7 @@
       for(var key in collection){
         results.push(iterator(collection[key], key, collection));
       }
-    }
+    } */
     
     return results;
   };
@@ -268,8 +282,14 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
-    
 
+    iterator = iterator || _.identity;
+
+    return !!_.reduce(collection, function(trueSoFar, item){
+      return trueSoFar && iterator(item);
+    }, true);
+
+    /*
     if((arguments.length === 2)){ // Do this if a callback function supplied
       if(arguments[1].name === ''){ // Ignore function if it is _.identity    
         //console.log('Function name: ' + arguments[1].name);
@@ -280,15 +300,6 @@
           }
         }
         return true;
-
-        /*
-        _.each(collection, function(){
-          if (!collection[i]){ 
-            return false;
-          }
-        });
-        return true;
-        */
 
       }else{ // Apply the callback function
         //console.log('Function name: ' + arguments[1].name);
@@ -308,13 +319,22 @@
         }
         return true;
     }
+    */
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
-    var any = false;
     // TIP: There's a very clever way to re-use every() here.
+    
+    iterator = iterator || _.identity;
+
+    return !!_.reduce(collection, function(trueSoFar, item){
+      return trueSoFar || iterator(item);
+    }, false);
+
+    /*
+    var any = false;
     if((arguments.length === 2)){ // Do this if a callback function supplied
       if(arguments[1].name === ''){ // Ignore function if it is _.identity    
         for (var i = 0; i<collection.length; i++) {
@@ -340,6 +360,7 @@
         }
         return false;
     }
+    */
 
   };
 
@@ -363,17 +384,37 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    _.each(arguments, function(source){
+      _.each(source, function(value, key){
+        obj[key] = value;
+      });
+    });
+
+    return obj;
+
+    /*
     for(var i=0; i<arguments.length; i++){
       for(var key in arguments[i]){
         obj[key] = arguments[i][key];
       }
     }
     return obj;
+    */
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(source){
+      _.each(source, function(value, key){
+        if(!obj.hasOwnProperty(key)){
+          obj[key] = value;
+        }
+      });
+    });
+
+    return obj;
+    /*
     for(var i=0; i<arguments.length; i++){
       for(var key in arguments[i]){
         if(!obj.hasOwnProperty(key)){
@@ -382,6 +423,7 @@
       }
     }
     return obj;
+    */
   };
 
 
@@ -500,6 +542,13 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    return _.map(collection, function(item){
+      if(typeof functionOrKey === 'function'){
+        return functionOrKey.apply(item, args);
+      }else{
+        return item[functionOrKey]();
+      }
+    })
   };
 
   // Sort the object's values by a criterion produced by an iterator.
